@@ -6,6 +6,12 @@ Public GitHub Pages base URL:
 https://agumperz-source.github.io/bridgeworld-mailerlite-newsletter/assets/newsletter/
 ```
 
+Shorter equivalent base URL:
+
+```text
+https://agumperz-source.github.io/bridgeworld-mailerlite-newsletter/a/
+```
+
 Use these URLs in MailerLite newsletter HTML:
 
 - `https://agumperz-source.github.io/bridgeworld-mailerlite-newsletter/assets/newsletter/H.png`
