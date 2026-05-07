@@ -72,6 +72,18 @@ Hand label cells are Outlook-sensitive. They must retain inline Times New Roman 
 
 Render auctions from semantic auction objects.
 
+All visible auction tables must share the canonical compact visual family documented in `docs/component-style-rules.md`.
+
+Supported auction variants:
+- compact MSC auction
+- longer play/defense auction
+- auction with optional bidder-name row
+- auction with external footnotes below the table
+
+Do not render auction footnotes as a spanning row inside the auction table. Footnotes belong immediately below the table, aligned to the auction table width and left edge.
+
+When bidder names are present, render them as an optional italic row directly under the `WEST / NORTH / EAST / SOUTH` header row.
+
 Non-Outlook auction tables may be class-compressed if visual behavior is preserved.
 
 Outlook/MSO auction tables are rendering stabilizers. Do not remove or merge them in normal rendering.

@@ -39,6 +39,7 @@ PRODUCTION_HARD_FAIL_BYTES = 95_000
 MAILERLITE_ESTIMATED_INJECTION_BYTES = 25_000
 LEGACY_ASSET_RE = re.compile(r"https://storage\.mlcdn\.com/account_image/[^\s\"')<>]+", re.I)
 RAW_SUIT_RE = re.compile(r"(?<!alt=[\"'])[\u2660\u2663\u2665\u2666]")
+CSS_COMMENT_RE = re.compile(r"/\*.*?\*/", re.S)
 
 
 @dataclass(frozen=True)
@@ -385,6 +386,7 @@ def validate_rendering_invariants(root: Path, report: ValidationReport) -> None:
         report.add("hard_fail", "rendering_validator", "section_order_broken", "Stay Connected appears before article body mount.", "templates/authoring_canonical.html")
     if RAW_SUIT_RE.search(strip_comments(html)):
         report.add("warning", "rendering_validator", "raw_suit_glyphs", "Raw suit glyphs appear in template text; generated bridge content must use images.", "templates/authoring_canonical.html")
+    validate_html_component_guardrails(html, report, "templates/authoring_canonical.html", strict=False)
 
 
 def validate_production_export(root: Path, report: ValidationReport) -> None:
@@ -474,12 +476,80 @@ def validate_production_html(html: str, report: ValidationReport, source_name: s
         report.add("hard_fail", "production_validator", "empty_attr", "Production HTML contains empty style/class attributes.", source_name)
     if "<!--[if mso]" in html and "<![endif]-->" not in html:
         report.add("hard_fail", "production_validator", "malformed_mso", "Production HTML contains malformed MSO conditional comments.", source_name)
+    validate_html_component_guardrails(html, report, source_name)
     if size > PRODUCTION_HARD_FAIL_BYTES:
         report.add("hard_fail", "production_validator", "production_over_hard_budget", f"Production HTML is {size} bytes, over 95 KB.", source_name)
     elif size > PRODUCTION_WARNING_BYTES:
         report.add("human_review_required", "production_validator", "production_over_review_budget", f"Production HTML is {size} bytes, over 85 KB review threshold; estimated delivered size is {delivered_estimate} bytes after MailerLite injection.", source_name)
     elif size > PRODUCTION_IDEAL_BYTES:
         report.add("warning", "production_validator", "production_over_ideal_target", f"Production HTML is {size} bytes, over 75 KB ideal target; estimated delivered size is {delivered_estimate} bytes after MailerLite injection.", source_name)
+
+
+def validate_html_component_guardrails(html: str, report: ValidationReport, source_name: str, strict: bool = True) -> None:
+    """Catch known HTML shapes that caused visual/test churn in prior newsletters."""
+    if has_dangerous_css_comment(html):
+        report.add(
+            "warning",
+            "rendering_validator",
+            "dangerous_css_comment",
+            "CSS comments must not contain HTML-like angle brackets; MailerLite CSS inlining may preserve or rewrite them unpredictably.",
+            source_name,
+        )
+    if has_nested_footer_shell(html):
+        report.add(
+            "hard_fail" if strict else "warning",
+            "rendering_validator",
+            "nested_footer_shell",
+            "Stay Connected/footer appears to contain a nested 600px/548px shell; this can double-inset the bottom section.",
+            source_name,
+        )
+    if has_auction_footnote_table_row(html):
+        report.add(
+            "hard_fail" if strict else "warning",
+            "rendering_validator",
+            "auction_footnote_inside_table",
+            "Auction footnotes must render below the auction table, not as a colspan row inside it.",
+            source_name,
+        )
+    if not balanced_table_tags(html):
+        report.add(
+            "hard_fail",
+            "rendering_validator",
+            "unbalanced_table_tags",
+            "HTML has mismatched <table> and </table> tag counts.",
+            source_name,
+        )
+
+
+def has_dangerous_css_comment(html: str) -> bool:
+    return any("<" in match.group(0) or ">" in match.group(0) for match in CSS_COMMENT_RE.finditer(html))
+
+
+def has_nested_footer_shell(html: str) -> bool:
+    footer_start = html.find("Stay Connected")
+    if footer_start == -1:
+        return False
+    footer_html = html[footer_start:]
+    return bool(
+        re.search(r"<table\b[^>]*\bwidth=[\"']600[\"']", footer_html, re.I)
+        or re.search(r"<table\b[^>]*\bwidth=[\"']548[\"']", footer_html, re.I)
+        or re.search(r"max-width\s*:\s*548px", footer_html, re.I)
+    )
+
+
+def has_auction_footnote_table_row(html: str) -> bool:
+    for table in re.findall(r"<table\b.*?</table>", html, flags=re.I | re.S):
+        if not re.search(r"\b(WEST|NORTH|EAST|SOUTH)\b", table, re.I):
+            continue
+        if re.search(r"<td\b[^>]*\bcolspan=[\"']4[\"'][^>]*>.*?(?:\*|nonforcing|forcing|alert|transfer|both majors)", table, re.I | re.S):
+            return True
+    return False
+
+
+def balanced_table_tags(html: str) -> bool:
+    openings = len(re.findall(r"<table\b", html, re.I))
+    closings = len(re.findall(r"</table\s*>", html, re.I))
+    return openings == closings
 
 
 def replace_legacy_asset_urls(html: str) -> tuple[str, int]:
