@@ -20,12 +20,12 @@ class RegionSpec:
 
 
 REGIONS = (
-    RegionSpec("newsletter_identity", "tbw-newsletter-identity", "</td>", ("Times New Roman",)),
-    RegionSpec("problem_solution_heading", "tbw-section-heading", "</table>", ("tbw-section-heading-cell",)),
-    RegionSpec("hand_geometry", "tbw-hand-stage", "</table>", ("tbw-hand-table", "hlabel")),
+    RegionSpec("newsletter_identity", 'class="tbw-newsletter-identity"', "</td>", ("Times New Roman",)),
+    RegionSpec("problem_solution_heading", 'class="tbw-section-heading"', "</table>", ("tbw-section-heading-cell",)),
+    RegionSpec("hand_geometry", 'class="tbw-hand-stage"', "</table>", ("tbw-hand-table", "hlabel")),
     RegionSpec("mso_auction", "<!--[if mso]>", "<![endif]-->", ("tbw-auction", "mso-line-height-rule"), "contains_auction"),
-    RegionSpec("stay_connected", "tbw-stay-title", "</table>", ("tbw-stay-copy",)),
-    RegionSpec("footer", "tbw-footer", "</table>", ("The Bridge World",)),
+    RegionSpec("stay_connected", 'class="tbw-stay-title"', "</table>", ("Stay Connected", "Times New Roman")),
+    RegionSpec("footer", 'class="tbw-footer', "</table>", ("border-top:2px solid #555",)),
 )
 
 
