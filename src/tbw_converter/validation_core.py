@@ -382,13 +382,25 @@ def validate_rendering_invariants(root: Path, report: ValidationReport) -> None:
 
 def validate_production_export(root: Path, report: ValidationReport) -> None:
     authoring_path = root / "templates" / "authoring_canonical.html"
+    production_path = root / "templates" / "production_canonical.html"
     authoring_html = read_text(authoring_path)
-    first = export_production_html(authoring_html)
+    production_reference = read_text(production_path)
+    safe_authoring_export = export_production_html(authoring_html)
+    first = export_production_html(production_reference)
     second = export_production_html(first.html)
     if first.html != second.html:
-        report.add("hard_fail", "production_validator", "export_not_idempotent", "Production export is not byte-idempotent.", str(authoring_path))
-    validate_production_html(first.html, report, "templates/authoring_canonical.html")
+        report.add("hard_fail", "production_validator", "export_not_idempotent", "Production export is not byte-idempotent.", str(production_path))
+    validate_production_html(first.html, report, "templates/production_canonical.html")
     report.info["production_export_report"] = first.report
+    report.info["safe_authoring_export_report"] = safe_authoring_export.report
+    if safe_authoring_export.report["production_size"] > 95_000:
+        report.add(
+            "warning",
+            "production_validator",
+            "authoring_safe_export_over_budget",
+            "Tier 1-safe export from authoring template exceeds 95 KB; use production_canonical.html or add tested Tier 2 compression.",
+            str(authoring_path),
+        )
 
 
 @dataclass(frozen=True)
