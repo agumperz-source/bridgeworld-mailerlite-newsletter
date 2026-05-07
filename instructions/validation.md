@@ -89,9 +89,11 @@ Checks visual output:
 Always report:
 - authoring HTML size when available
 - production HTML size
+- estimated MailerLite injection size, currently 25 KB
+- estimated delivered HTML size
 - whether MailerLite injection may create Gmail clipping risk
 
-If production HTML exceeds 85 KB, identify:
+If production HTML exceeds 75 KB, identify:
 - remaining Tier 1 options
 - possible Tier 2 options
 - Tier 3 options only as explicit risky test builds

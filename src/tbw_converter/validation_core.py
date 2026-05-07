@@ -30,6 +30,10 @@ CANONICAL_ASSETS = {
     "BW": "https://agumperz-source.github.io/bw/a/BW.png",
     "logo": "https://agumperz-source.github.io/bw/a/logo.png",
 }
+PRODUCTION_IDEAL_BYTES = 75_000
+PRODUCTION_WARNING_BYTES = 85_000
+PRODUCTION_HARD_FAIL_BYTES = 95_000
+MAILERLITE_ESTIMATED_INJECTION_BYTES = 25_000
 LEGACY_ASSET_RE = re.compile(r"https://storage\.mlcdn\.com/account_image/[^\s\"')<>]+", re.I)
 RAW_SUIT_RE = re.compile(r"(?<!alt=[\"'])[\u2660\u2663\u2665\u2666]")
 
@@ -393,7 +397,7 @@ def validate_production_export(root: Path, report: ValidationReport) -> None:
     validate_production_html(first.html, report, "templates/production_canonical.html")
     report.info["production_export_report"] = first.report
     report.info["safe_authoring_export_report"] = safe_authoring_export.report
-    if safe_authoring_export.report["production_size"] > 95_000:
+    if safe_authoring_export.report["production_size"] > PRODUCTION_HARD_FAIL_BYTES:
         report.add(
             "warning",
             "production_validator",
@@ -423,12 +427,22 @@ def export_production_html(authoring_html: str) -> ExportResult:
     report = {
         "authoring_size": original_size,
         "production_size": production_size,
+        "estimated_mailerlite_injection_bytes": MAILERLITE_ESTIMATED_INJECTION_BYTES,
+        "estimated_delivered_size": production_size + MAILERLITE_ESTIMATED_INJECTION_BYTES,
         "bytes_saved_total": original_size - production_size,
         "bytes_saved_by_url_replacement": after_urls - original_size,
         "bytes_saved_by_comment_stripping": after_urls - after_comments,
         "legacy_urls_replaced": url_replacements,
         "comments_removed": comments_removed,
-        "size_status": "pass" if production_size <= 85_000 else "warning" if production_size <= 95_000 else "hard_fail",
+        "size_status": (
+            "pass"
+            if production_size <= PRODUCTION_IDEAL_BYTES
+            else "warning"
+            if production_size <= PRODUCTION_WARNING_BYTES
+            else "human_review_required"
+            if production_size <= PRODUCTION_HARD_FAIL_BYTES
+            else "hard_fail"
+        ),
         "protected_regions_touched": False,
         "mso_blocks_touched": False,
     }
@@ -437,6 +451,14 @@ def export_production_html(authoring_html: str) -> ExportResult:
 
 def validate_production_html(html: str, report: ValidationReport, source_name: str) -> None:
     size = len(html.encode("utf-8"))
+    delivered_estimate = size + MAILERLITE_ESTIMATED_INJECTION_BYTES
+    report.info.setdefault("size_policy", {
+        "ideal_source_html_bytes": PRODUCTION_IDEAL_BYTES,
+        "warning_source_html_bytes": PRODUCTION_WARNING_BYTES,
+        "hard_fail_source_html_bytes": PRODUCTION_HARD_FAIL_BYTES,
+        "estimated_mailerlite_injection_bytes": MAILERLITE_ESTIMATED_INJECTION_BYTES,
+    })
+    report.info["estimated_delivered_html_size"] = delivered_estimate
     if LEGACY_ASSET_RE.search(html):
         report.add("hard_fail", "production_validator", "legacy_asset_url", "Production HTML contains legacy MailerLite asset URLs.", source_name)
     if "<!-- BEGIN_EDITABLE:" in html or "<!-- END_EDITABLE:" in html:
@@ -445,10 +467,12 @@ def validate_production_html(html: str, report: ValidationReport, source_name: s
         report.add("hard_fail", "production_validator", "empty_attr", "Production HTML contains empty style/class attributes.", source_name)
     if "<!--[if mso]" in html and "<![endif]-->" not in html:
         report.add("hard_fail", "production_validator", "malformed_mso", "Production HTML contains malformed MSO conditional comments.", source_name)
-    if size > 95_000:
+    if size > PRODUCTION_HARD_FAIL_BYTES:
         report.add("hard_fail", "production_validator", "production_over_hard_budget", f"Production HTML is {size} bytes, over 95 KB.", source_name)
-    elif size > 85_000:
-        report.add("warning", "production_validator", "production_over_target", f"Production HTML is {size} bytes, over 85 KB target.", source_name)
+    elif size > PRODUCTION_WARNING_BYTES:
+        report.add("human_review_required", "production_validator", "production_over_review_budget", f"Production HTML is {size} bytes, over 85 KB review threshold; estimated delivered size is {delivered_estimate} bytes after MailerLite injection.", source_name)
+    elif size > PRODUCTION_IDEAL_BYTES:
+        report.add("warning", "production_validator", "production_over_ideal_target", f"Production HTML is {size} bytes, over 75 KB ideal target; estimated delivered size is {delivered_estimate} bytes after MailerLite injection.", source_name)
 
 
 def replace_legacy_asset_urls(html: str) -> tuple[str, int]:

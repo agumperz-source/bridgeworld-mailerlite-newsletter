@@ -144,10 +144,14 @@ Do not class-compress these away in Outlook-sensitive regions:
 
 ## Size budget
 
-Because MailerLite injects tracking/wrapper HTML, production source HTML should target 75-85 KB when possible.
+Because MailerLite injects tracking/wrapper HTML, production source HTML should target 75 KB when possible.
+
+Assume MailerLite may append approximately 25 KB of tracking/wrapper HTML after upload. Production reports must estimate delivered size as:
+
+`production_source_size + 25 KB`
 
 Report tradeoffs if:
-- production HTML exceeds 85 KB
+- production HTML exceeds 75 KB
 - safe optimizations cannot reach target
 - Tier 2 or Tier 3 optimizations would be required
 
@@ -163,8 +167,9 @@ Production export must report the final source size.
 
 Targets:
 
-- Target: `<= 85 KB`
-- Warning: `> 85 KB`
+- Ideal target: `<= 75 KB`
+- Warning: `> 75 KB`
+- Human review required: `> 85 KB`
 - Hard fail: `> 95 KB` unless the user explicitly approves export
 - Informational: estimate MailerLite injection risk because tracking/wrapper HTML may add significant size
 
@@ -193,6 +198,8 @@ Each production export report must include:
 
 - starting authoring size
 - production size
+- estimated MailerLite injection size
+- estimated delivered size
 - savings by category when measurable
 - asset URL status
 - whether size target, warning, or hard-fail threshold was reached

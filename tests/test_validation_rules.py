@@ -16,3 +16,10 @@ def test_package_validation_has_no_hard_failures():
     report = validate_package(".")
 
     assert not report.hard_fails()
+
+
+def test_package_validation_requires_review_over_85kb():
+    report = validate_package(".")
+
+    assert any(item.code == "production_over_review_budget" for item in report.human_review())
+    assert report.info["production_export_report"]["estimated_mailerlite_injection_bytes"] == 25_000

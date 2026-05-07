@@ -106,9 +106,15 @@ Legacy MailerLite-generated `storage.mlcdn.com/account_image/...` suit/logo URLs
 
 ## Production size policy
 
-Production output target is `<= 85 KB`.
+Production output ideal target is `<= 75 KB`.
+
+Production output above `75 KB` requires a warning.
+
+Production output above `85 KB` requires human review before automated export.
 
 Production output above `95 KB` requires explicit user approval before export.
+
+Production reports must estimate MailerLite injection as approximately `25 KB` and report estimated delivered size.
 
 
 ## Canonical JSON contract
