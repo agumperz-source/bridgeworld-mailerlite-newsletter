@@ -16,6 +16,8 @@ import re
 from pathlib import Path
 from typing import Any, Iterable
 
+from .export_analysis import analyze_html_size
+
 
 SEATS = ("N", "E", "S", "W")
 WNES = ("W", "N", "E", "S")
@@ -396,6 +398,7 @@ def validate_production_export(root: Path, report: ValidationReport) -> None:
         report.add("hard_fail", "production_validator", "export_not_idempotent", "Production export is not byte-idempotent.", str(production_path))
     validate_production_html(first.html, report, "templates/production_canonical.html")
     report.info["production_export_report"] = first.report
+    report.info["production_size_analysis"] = analyze_html_size(first.html)
     report.info["safe_authoring_export_report"] = safe_authoring_export.report
     if safe_authoring_export.report["production_size"] > PRODUCTION_HARD_FAIL_BYTES:
         report.add(
