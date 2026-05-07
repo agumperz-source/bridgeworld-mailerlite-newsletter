@@ -180,13 +180,19 @@ def validate_fixtures(root: Path, report: ValidationReport) -> None:
             report.add("hard_fail", "fixtures", "fixture_json_invalid", str(exc), str(fixture))
             continue
         fixture_report = validate_newsletter_json(data, fixture.name)
-        report.findings.extend(fixture_report.findings)
 
         if fixture.name.endswith(".hard_fail.json"):
             if not fixture_report.hard_fails():
                 report.add("hard_fail", "fixtures", "expected_hard_fail_missing", f"Fixture {fixture.name} did not produce a hard_fail.", str(fixture))
+            report.info.setdefault("expected_hard_fail_fixtures", {})[fixture.name] = [
+                finding.__dict__ for finding in fixture_report.hard_fails()
+            ]
         elif fixture_report.hard_fails():
+            report.findings.extend(fixture_report.findings)
             report.add("hard_fail", "fixtures", "expected_fixture_failed", f"Fixture {fixture.name} produced hard failures.", str(fixture))
+        else:
+            report.findings.extend(fixture_report.warnings())
+            report.findings.extend(fixture_report.human_review())
 
 
 def validate_newsletter_json(data: dict[str, Any], source_name: str = "newsletter") -> ValidationReport:
@@ -356,7 +362,7 @@ def validate_extraction_contract(root: Path, report: ValidationReport) -> None:
 
 def validate_rendering_invariants(root: Path, report: ValidationReport) -> None:
     html = read_text(root / "templates" / "authoring_canonical.html")
-    ordered = ["tbw-newsletter-identity", "START ARTICLE HEADING", "ARTICLE_BLOCK_PLAY_DEFENSE_START", "Stay Connected"]
+    ordered = ["tbw-newsletter-identity", "START ARTICLE HEADING", "ARTICLE_BLOCK_PLAY_DEFENSE_START"]
     last = -1
     for token in ordered:
         index = html.find(token)
@@ -365,6 +371,11 @@ def validate_rendering_invariants(root: Path, report: ValidationReport) -> None:
         elif index < last:
             report.add("hard_fail", "rendering_validator", "section_order_broken", f"Rendering order token {token} appears out of order.", "templates/authoring_canonical.html")
         last = max(last, index)
+    stay_connected_index = html.rfind("Stay Connected")
+    if stay_connected_index == -1:
+        report.add("hard_fail", "rendering_validator", "missing_order_token", "Missing Stay Connected section.", "templates/authoring_canonical.html")
+    elif stay_connected_index < last:
+        report.add("hard_fail", "rendering_validator", "section_order_broken", "Stay Connected appears before article body mount.", "templates/authoring_canonical.html")
     if RAW_SUIT_RE.search(strip_comments(html)):
         report.add("warning", "rendering_validator", "raw_suit_glyphs", "Raw suit glyphs appear in template text; generated bridge content must use images.", "templates/authoring_canonical.html")
 
