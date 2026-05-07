@@ -1,0 +1,9 @@
+[project]
+name = "bridgeworld-mailerlite-newsletter"
+version = "0.1.0"
+description = "Deterministic validation and production export tooling for The Bridge World MailerLite newsletter system."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]

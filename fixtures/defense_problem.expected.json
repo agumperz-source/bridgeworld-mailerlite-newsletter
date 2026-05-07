@@ -1,0 +1,89 @@
+{
+  "newsletter_identity": "The Bridge World Newsletter \u2022 May 6, 2026",
+  "publication_date": "2026-05-06",
+  "preheader_text": "Fixture",
+  "editor_note": {
+    "title": "",
+    "html": "<p>Fixture note.</p>"
+  },
+  "asset_map": {
+    "S": "https://agumperz-source.github.io/bw/a/S.png",
+    "H": "https://agumperz-source.github.io/bw/a/H.png",
+    "D": "https://agumperz-source.github.io/bw/a/D.png",
+    "C": "https://agumperz-source.github.io/bw/a/C.png",
+    "BW": "https://agumperz-source.github.io/bw/a/BW.png",
+    "logo": "https://agumperz-source.github.io/bw/a/logo.png"
+  },
+  "validation_status": {
+    "extraction": "pending",
+    "semantic_bridge": "pending",
+    "layout_intent": "pending",
+    "rendering": "pending",
+    "production": "pending",
+    "source_issues": []
+  },
+  "article": {
+    "article_type": "defense_problem",
+    "title": "Fixture Defense Problem",
+    "author": "Fixture Author",
+    "deal_facts": {
+      "dealer": "W",
+      "vulnerability": "None",
+      "contract": "4S",
+      "opening_lead": "H9"
+    },
+    "hands": {
+      "N": {
+        "S": "5 4 3",
+        "H": "J 10 6",
+        "D": "A 9 7",
+        "C": "Q 10 9 7"
+      },
+      "E": {
+        "S": "A J 7 2",
+        "H": "7 5 3",
+        "D": "6 4 3",
+        "C": "K 6 2"
+      }
+    },
+    "auction": {
+      "dealer": "W",
+      "call_order": [
+        {
+          "seat": "W",
+          "call": "Pass"
+        },
+        {
+          "seat": "N",
+          "call": "Pass"
+        },
+        {
+          "seat": "E",
+          "call": "Pass"
+        },
+        {
+          "seat": "S",
+          "call": "1S"
+        }
+      ],
+      "status": "in_progress"
+    },
+    "sections": [
+      {
+        "type": "problem",
+        "html": "<p>Plan your defense.</p>"
+      }
+    ]
+  },
+  "layout_intents": [
+    {
+      "hand_layout": "defense_three_position",
+      "auction_layout": "wnes_table",
+      "visible_seats": [
+        "N",
+        "E"
+      ],
+      "reader_seat": "E"
+    }
+  ]
+}

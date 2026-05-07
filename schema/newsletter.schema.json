@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bridgeworld.example/schema/newsletter.schema.json",
+  "title": "Bridge World MailerLite Newsletter",
+  "type": "object",
+  "required": [
+    "newsletter_identity",
+    "publication_date",
+    "preheader_text",
+    "editor_note",
+    "article",
+    "asset_map",
+    "layout_intents",
+    "validation_status"
+  ],
+  "properties": {
+    "newsletter_identity": {
+      "type": "string"
+    },
+    "publication_date": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "preheader_text": {
+      "type": "string"
+    },
+    "editor_note": {
+      "type": "object",
+      "required": [
+        "title",
+        "html"
+      ],
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "html": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "asset_map": {
+      "type": "object",
+      "required": [
+        "S",
+        "H",
+        "D",
+        "C",
+        "BW",
+        "logo"
+      ],
+      "properties": {
+        "S": {
+          "type": "string",
+          "format": "uri"
+        },
+        "H": {
+          "type": "string",
+          "format": "uri"
+        },
+        "D": {
+          "type": "string",
+          "format": "uri"
+        },
+        "C": {
+          "type": "string",
+          "format": "uri"
+        },
+        "BW": {
+          "type": "string",
+          "format": "uri"
+        },
+        "logo": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": false
+    },
+    "article": {
+      "$ref": "#/$defs/article"
+    },
+    "layout_intents": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/layout_intent"
+      }
+    },
+    "validation_status": {
+      "type": "object",
+      "properties": {
+        "extraction": {
+          "type": "string"
+        },
+        "semantic_bridge": {
+          "type": "string"
+        },
+        "layout_intent": {
+          "type": "string"
+        },
+        "rendering": {
+          "type": "string"
+        },
+        "production": {
+          "type": "string"
+        },
+        "source_issues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/source_issue"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "metadata": {
+      "type": "object",
+      "properties": {
+        "semantic_schema_version": {
+          "type": "string"
+        },
+        "semantic_bridge_version": {
+          "type": "string"
+        },
+        "layout_intent_version": {
+          "type": "string"
+        },
+        "rendering_profile_version": {
+          "type": "string"
+        },
+        "production_export_version": {
+          "type": "string"
+        },
+        "asset_map_version": {
+          "type": "string"
+        },
+        "template_version": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "seat": {
+      "enum": [
+        "N",
+        "S",
+        "E",
+        "W"
+      ]
+    },
+    "suit": {
+      "enum": [
+        "S",
+        "H",
+        "D",
+        "C"
+      ]
+    },
+    "rank_string": {
+      "type": "string"
+    },
+    "hand": {
+      "type": "object",
+      "properties": {
+        "S": {
+          "$ref": "#/$defs/rank_string"
+        },
+        "H": {
+          "$ref": "#/$defs/rank_string"
+        },
+        "D": {
+          "$ref": "#/$defs/rank_string"
+        },
+        "C": {
+          "$ref": "#/$defs/rank_string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "hands": {
+      "type": "object",
+      "properties": {
+        "N": {
+          "$ref": "#/$defs/hand"
+        },
+        "S": {
+          "$ref": "#/$defs/hand"
+        },
+        "E": {
+          "$ref": "#/$defs/hand"
+        },
+        "W": {
+          "$ref": "#/$defs/hand"
+        }
+      },
+      "additionalProperties": false
+    },
+    "auction_call": {
+      "type": "object",
+      "required": [
+        "seat",
+        "call"
+      ],
+      "properties": {
+        "seat": {
+          "$ref": "#/$defs/seat"
+        },
+        "call": {
+          "type": "string"
+        },
+        "alert": {
+          "type": "string"
+        },
+        "note": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "auction": {
+      "type": "object",
+      "required": [
+        "call_order",
+        "status"
+      ],
+      "properties": {
+        "dealer": {
+          "$ref": "#/$defs/seat"
+        },
+        "call_order": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/auction_call"
+          }
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "incomplete",
+            "in_progress"
+          ]
+        },
+        "question_seat": {
+          "$ref": "#/$defs/seat"
+        },
+        "result": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "deal_facts": {
+      "type": "object",
+      "properties": {
+        "dealer": {
+          "$ref": "#/$defs/seat"
+        },
+        "vulnerability": {
+          "type": "string"
+        },
+        "scoring": {
+          "type": "string"
+        },
+        "contract": {
+          "type": "string"
+        },
+        "opening_lead": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    "article": {
+      "type": "object",
+      "required": [
+        "article_type",
+        "title",
+        "sections"
+      ],
+      "properties": {
+        "article_type": {
+          "enum": [
+            "bidding_msc",
+            "play_problem",
+            "defense_problem",
+            "historical_deal_article",
+            "other_feature_article"
+          ]
+        },
+        "title": {
+          "type": "string"
+        },
+        "deck": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "deal_facts": {
+          "$ref": "#/$defs/deal_facts"
+        },
+        "hands": {
+          "$ref": "#/$defs/hands"
+        },
+        "auction": {
+          "$ref": "#/$defs/auction"
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "layout_intent": {
+      "type": "object",
+      "required": [
+        "hand_layout"
+      ],
+      "properties": {
+        "hand_layout": {
+          "enum": [
+            "vertical_ns",
+            "defense_three_position",
+            "full_deal_cross",
+            "bidding_single_south",
+            "none"
+          ]
+        },
+        "auction_layout": {
+          "enum": [
+            "wnes_table",
+            "incomplete_wnes_table",
+            "none"
+          ]
+        },
+        "visible_seats": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/seat"
+          }
+        },
+        "reader_seat": {
+          "$ref": "#/$defs/seat"
+        },
+        "primary_hand_order": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/seat"
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "source_issue": {
+      "type": "object",
+      "required": [
+        "severity",
+        "type",
+        "message"
+      ],
+      "properties": {
+        "severity": {
+          "enum": [
+            "hard_fail",
+            "warning",
+            "info"
+          ]
+        },
+        "type": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "source_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conflicting_values": {
+          "type": "object"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

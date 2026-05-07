@@ -1,0 +1,66 @@
+{
+  "newsletter_identity": "The Bridge World Newsletter \u2022 May 6, 2026",
+  "publication_date": "2026-05-06",
+  "preheader_text": "Fixture",
+  "editor_note": {
+    "title": "",
+    "html": "<p>Fixture note.</p>"
+  },
+  "asset_map": {
+    "S": "https://agumperz-source.github.io/bw/a/S.png",
+    "H": "https://agumperz-source.github.io/bw/a/H.png",
+    "D": "https://agumperz-source.github.io/bw/a/D.png",
+    "C": "https://agumperz-source.github.io/bw/a/C.png",
+    "BW": "https://agumperz-source.github.io/bw/a/BW.png",
+    "logo": "https://agumperz-source.github.io/bw/a/logo.png"
+  },
+  "validation_status": {
+    "extraction": "pending",
+    "semantic_bridge": "pending",
+    "layout_intent": "pending",
+    "rendering": "pending",
+    "production": "pending",
+    "source_issues": [
+      {
+        "severity": "hard_fail",
+        "type": "duplicate_card",
+        "message": "Spade ace appears in both North and East.",
+        "source_refs": [
+          "fixture"
+        ],
+        "conflicting_values": {
+          "N.S": "A K Q",
+          "E.S": "A J 7"
+        }
+      }
+    ]
+  },
+  "article": {
+    "article_type": "defense_problem",
+    "title": "Bad Fixture Duplicate Card",
+    "sections": [],
+    "hands": {
+      "N": {
+        "S": "A K Q",
+        "H": "",
+        "D": "",
+        "C": ""
+      },
+      "E": {
+        "S": "A J 7",
+        "H": "",
+        "D": "",
+        "C": ""
+      }
+    }
+  },
+  "layout_intents": [
+    {
+      "hand_layout": "defense_three_position",
+      "visible_seats": [
+        "N",
+        "E"
+      ]
+    }
+  ]
+}

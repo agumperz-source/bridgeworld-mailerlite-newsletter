@@ -1,0 +1,17 @@
+{
+  "description": "Protected-region fingerprint specification for Codex tests.",
+  "regions": [
+    "newsletter_identity",
+    "problem_solution_heading",
+    "hand_geometry",
+    "mso_auction",
+    "stay_connected",
+    "footer"
+  ],
+  "normalization": [
+    "collapse whitespace between tags",
+    "preserve tag names, class names, conditional comments, widths, heights, and protected inline properties",
+    "ignore nonsemantic attribute ordering only if parser preserves equivalent structure"
+  ],
+  "status": "specification_only"
+}

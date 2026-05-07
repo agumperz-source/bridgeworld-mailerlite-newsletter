@@ -38,3 +38,6 @@ contacts/
 *.csv
 *.xlsx
 *.xls
+
+# Local package inspection scratch space
+_package_inspect/

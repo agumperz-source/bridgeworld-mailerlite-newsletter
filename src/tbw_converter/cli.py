@@ -1,11 +1,9 @@
-"""Command-line entrypoint for the Bridgeworld newsletter converter."""
+"""Command-line entrypoint for the Bridge World newsletter tooling."""
 
+from __future__ import annotations
 
-def main():
-    """Run the converter CLI."""
-    raise NotImplementedError("CLI is not implemented yet.")
+from .validation_core import main
 
 
 if __name__ == "__main__":
-    main()
-
+    raise SystemExit(main())
