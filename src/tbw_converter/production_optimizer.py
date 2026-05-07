@@ -18,6 +18,7 @@ from .fingerprints import fingerprint_protected_regions
 
 STYLE_BLOCK_RE = re.compile(r"(<style\b[^>]*>)(.*?)(</style>)", re.I | re.S)
 CSS_COMMENT_RE = re.compile(r"/\*.*?\*/", re.S)
+STYLE_ATTR_RE = re.compile(r"\sstyle=(['\"])(.*?)\1", re.I | re.S)
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,7 @@ def optimize_production_html(html: str) -> OptimizationResult:
     before_fingerprints = fingerprint_protected_regions(html)
     transforms: list[tuple[str, Callable[[str], str]]] = [
         ("minify_style_blocks", minify_style_blocks),
+        ("minify_style_attributes", minify_style_attributes),
     ]
     current = html
     steps = []
@@ -64,6 +66,24 @@ def minify_style_blocks(html: str) -> str:
         return f"{open_tag}{css.strip()}{close_tag}"
 
     return STYLE_BLOCK_RE.sub(repl, html)
+
+
+def minify_style_attributes(html: str) -> str:
+    """Remove formatting whitespace inside inline style attributes.
+
+    This preserves declaration order and values. It does not deduplicate,
+    hoist, or remove properties, which keeps the transform suitable for
+    Outlook-sensitive production markup.
+    """
+
+    def repl(match: re.Match[str]) -> str:
+        quote, css = match.groups()
+        css = re.sub(r"\s+", " ", css.strip())
+        css = re.sub(r"\s*([:;,])\s*", r"\1", css)
+        css = css.rstrip(";")
+        return f" style={quote}{css}{quote}"
+
+    return STYLE_ATTR_RE.sub(repl, html)
 
 
 def main() -> int:

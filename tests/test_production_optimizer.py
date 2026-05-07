@@ -12,6 +12,15 @@ def test_style_block_optimizer_saves_bytes_without_changing_body_markup():
     assert "<body><table><tr><td>X</td></tr></table></body>" in result.html
 
 
+def test_style_attribute_optimizer_preserves_declaration_order_and_values():
+    html = '<td style=" height : 24px ; line-height : 24px ; mso-line-height-rule : exactly ; ">X</td>'
+
+    result = optimize_production_html(html)
+
+    assert result.html == '<td style="height:24px;line-height:24px;mso-line-height-rule:exactly">X</td>'
+    assert result.report["bytes_saved"] > 0
+
+
 def test_production_template_css_optimizer_is_idempotent_after_application():
     html = Path("templates/production_canonical.html").read_text(encoding="utf-8-sig")
 

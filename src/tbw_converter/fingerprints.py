@@ -28,6 +28,8 @@ REGIONS = (
     RegionSpec("footer", 'class="tbw-footer', "</table>", ("border-top:2px solid #555",)),
 )
 
+STYLE_ATTR_RE = re.compile(r"\sstyle=(['\"])(.*?)\1", re.I | re.S)
+
 
 def fingerprint_protected_regions(html: str) -> dict[str, Any]:
     """Return normalized hashes for known protected regions."""
@@ -79,8 +81,17 @@ def extract_region(html: str, spec: RegionSpec) -> str:
 
 def normalize_region(html: str) -> str:
     value = re.sub(r">\s+<", "><", html)
+    value = STYLE_ATTR_RE.sub(normalize_style_attribute, value)
     value = re.sub(r"\s+", " ", value)
     return value.strip()
+
+
+def normalize_style_attribute(match: re.Match[str]) -> str:
+    quote, css = match.groups()
+    css = re.sub(r"\s+", " ", css.strip())
+    css = re.sub(r"\s*([:;,])\s*", r"\1", css)
+    css = css.rstrip(";")
+    return f" style={quote}{css}{quote}"
 
 
 def fingerprint_file(path: str | Path) -> dict[str, Any]:
